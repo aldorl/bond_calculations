@@ -1,5 +1,7 @@
 require "bond_calculations/version"
 
-module BondCalculations
-  # Your code goes here...
+module BondCalculations::Core
+  def self.yield_spread(csv_input)
+    true
+  end
 end
