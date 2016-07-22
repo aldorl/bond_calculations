@@ -111,7 +111,7 @@ module BondCalculations::Core
       :spread => (bond_yield - ceiling_yield).abs.round(2),
       :index  => ceiling_index
     }
-    
+
     floor_diff[:term] >= ceiling_diff[:term] ? ceiling_diff : floor_diff
   end
 
