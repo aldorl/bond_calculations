@@ -54,6 +54,8 @@ module BondCalculations::Core
     serialize(output)
   end
 
+  private
+
   # Parses CSV and separates corporate and government bonds
   def self.csv_data_filter(csv_input)
     bonds = {:corporate => [], :government => []}
@@ -109,7 +111,7 @@ module BondCalculations::Core
       :spread => (bond_yield - ceiling_yield).abs.round(2),
       :index  => ceiling_index
     }
-
+    
     floor_diff[:term] >= ceiling_diff[:term] ? ceiling_diff : floor_diff
   end
 
