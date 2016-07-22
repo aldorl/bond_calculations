@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Tool for calculating the following properties of a bond issue:
                           1) yield spread between target and benchmark bonds.
                           2) spread to target bond.}
-  # spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/aldorl/bond_calculations"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
