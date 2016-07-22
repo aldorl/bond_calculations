@@ -72,6 +72,64 @@ module BondCalculations::Core
     end
   end
 
+  def self.spread_to_curve(csv_input)
+    bonds = {:corporate => [], :government => []}
+
+    # Parses CSV and separates corporate and government bonds
+    CSV.foreach(csv_input, {:headers => true, :header_converters => :symbol}) do |row|
+      bond_type = row[:type].to_sym
+      bond_data = {
+                    :name => row[:bond],
+                    :term => term_to_float(row[:term]),
+                    :yield => yield_to_float(row[:yield])
+                  }
+      bonds[bond_type] << bond_data
+    end
+
+    # Initializes floor and ceiling benchmarks for target corporate bonds
+    # as well as return output array
+    floor_index   = -1
+    ceiling_index = 0
+
+    floor   = { :term => nil, :yield => nil }
+    ceiling = { :term => nil, :yield => nil }
+
+    output  = [['bond', 'spread_to_curve']]
+
+    # Iterates through each corporate bond and calculates the spread against
+    # the closet benchmark based on maturity
+    bonds[:corporate].each_with_index do |bond, index|
+
+      # Checks current floor and ceiling benchmarks and shifts them if necessary
+      while (floor[:term] == nil || bond[:term] > ceiling[:term])
+        floor_index += 1
+        ceiling_index += 1
+
+        floor   = {
+          :term => bonds[:government][floor_index][:term],
+          :yield => bonds[:government][floor_index][:yield]
+        }
+        ceiling = {
+          :term => bonds[:government][ceiling_index][:term],
+          :yield => bonds[:government][ceiling_index][:yield]
+        }
+      end
+
+      curve_yield   = linear_interpolation(floor[:yield], ceiling[:yield], bond[:term], floor[:term], ceiling[:term])
+      curve_spread  = (bond[:yield] - curve_yield).round(2)
+      output << [bond[:name], float_to_yield(curve_spread)]
+    end
+
+    # Serializes and returns output
+    output.each_with_object('') do |line, serialized|
+      serialized << "#{line.join(',')}\n"
+    end
+  end
+
+  def self.linear_interpolation(y0, y1, x, x0, x1)
+    y0 + (y1 - y0)*((x-x0) / (x1-x0))
+  end
+
   def self.term_to_float(term_string)
     term_string.downcase.match(TERM_REGEX)[1].to_f
   end
